@@ -9,7 +9,7 @@ const langs = isos.map(function (lang) { return lang.name });
 const autocorrect = require("autocorrect")({
   words: langs,
 });
-console.log(isos);
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("translate")

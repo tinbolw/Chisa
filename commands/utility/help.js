@@ -24,22 +24,27 @@ module.exports = {
         inline: true,
       },
     ];
+    //* bandage fix for string length, will add pagination at a later date
     for (i in guildCommands) {
+      // fields[0].value +=
+      //   `[\`\`${guildCommands[i].name}\`\`](${"https://a.com"} '${
+      //     guildCommands[i].description
+      //   }')` + "\n";
       fields[0].value +=
-        `[\`\`${guildCommands[i].name}\`\`](${"https://a.com"} '${
-          guildCommands[i].description
-        }')` + "\n";
+        `${guildCommands[i].name}` + "\n";
     }
     for (i in globalCommands) {
+      // fields[1].value +=
+      //   `[\`\`${globalCommands[i].name}\`\`](${"https://a.com"} '${
+      //     globalCommands[i].description
+      //   }')` + "\n";
       fields[1].value +=
-        `[\`\`${globalCommands[i].name}\`\`](${"https://a.com"} '${
-          globalCommands[i].description
-        }')` + "\n";
+        `${globalCommands[i].name}` + "\n";
     }
     const embed = new EmbedBuilder()
       .setTitle('Commands')
       .setFields(fields)
-      .setFooter({text: "Page 1 | Version " + config.version});
+      .setFooter({text: "Page 1 | Version " + package.version});
     interaction.editReply({embeds: [embed]});
   },
 };
