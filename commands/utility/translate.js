@@ -3,7 +3,7 @@ const { translate } = require("@vitalets/google-translate-api");
 const fs = require('fs');
 const path = require("node:path");
 
-var isos = fs.readFileSync(path.join(__dirname, "../../isos.json"));
+var isos = fs.readFileSync(path.join(__dirname, "../../resources/isos.json"));
 isos = JSON.parse(isos);
 const langs = isos.map(function (lang) { return lang.name });
 const autocorrect = require("autocorrect")({

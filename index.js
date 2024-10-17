@@ -12,6 +12,7 @@ const client = new Client({
   partials: ["CHANNEL"],
 });
 //todo migrate some of the old commands to slashcommands
+require('dotenv').config();
 const botPackage = require("./package.json");
 
 // const checkMessageType = require("./resources/dailymessagestats/checkMessageType.js");
@@ -33,20 +34,20 @@ client.once("ready", async () => {
   // const guild = await client.guilds.fetch("288143162394804224");
   // const guildMembers = await guild.members.fetch();
   // Chisa emoji servers
-  const guilds = await client.guilds.fetch();
-  let len = guilds.size;
-  let collect = [];
-  guilds.forEach(async (guild) => {
-    if (guild.id == 288143162394804224) return;
-    let g = await guild.fetch();
-    let emojis = guild.emojis.cache;
-    collect.push(...emojis);
-    len--;
-    if (len == 1) {
-      emojis = new Map(collect);
-    }
-  });
-  console.log(emojis);
+  // const guilds = await client.guilds.fetch();
+  // let len = guilds.size;
+  // let collect = [];
+  // guilds.forEach(async (guild) => {
+  //   if (guild.id == 288143162394804224) return;
+  //   let g = await guild.fetch();
+  //   let emojis = guild.emojis.cache;
+  //   collect.push(...emojis);
+  //   len--;
+  //   if (len == 1) {
+  //     emojis = new Map(collect);
+  //   }
+  // });
+  // console.log(emojis);
   // let sale = await priceTracker.run(954850);
   // if (sale) {
   //   let channel = await client.channels.fetch('412081820771942410');
@@ -180,4 +181,4 @@ client.on("messageCreate", async (message) => {
   if (mudaeFilter.indexOf(message.content) == -1) checkMessageType.run(message);
 });
 
-client.login(config.token);
+client.login(process.env.TOKEN);
