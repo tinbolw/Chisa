@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const path = require("node:path");
-const config = require(path.join(__dirname, "../../../package.json"));
-const getSlashCommands = require(path.join(__dirname, "../../management/getslashcommands.js"));
+const package = require(path.join(__dirname, "../../package.json"));
+const getSlashCommands = require(path.join(__dirname, "../../lib/getslashcommands.js"));
 
 //!! FIX LENGTH OF DESC NOW 
 

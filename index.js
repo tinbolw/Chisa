@@ -12,12 +12,11 @@ const client = new Client({
   partials: ["CHANNEL"],
 });
 //todo migrate some of the old commands to slashcommands
-const config = require("./config.json");
 const botPackage = require("./package.json");
 
-const checkMessageType = require("./resources/dailymessagestats/checkMessageType.js");
-const priceTracker = require("./resources/pricetracker.js");
-const player = require("./resources/player.js")
+// const checkMessageType = require("./resources/dailymessagestats/checkMessageType.js");
+// const priceTracker = require("./resources/pricetracker.js");
+// const player = require("./resources/player.js")
 
 const fs = require("fs");
 const path = require("node:path");
@@ -31,22 +30,23 @@ client.once("ready", async () => {
     } ${botPackage.version} is a go`
   );
   client.user.setActivity("/help");
-  const guild = await client.guilds.fetch("288143162394804224");
-  const guildMembers = await guild.members.fetch();
+  // const guild = await client.guilds.fetch("288143162394804224");
+  // const guildMembers = await guild.members.fetch();
   // Chisa emoji servers
   const guilds = await client.guilds.fetch();
-  var len = guilds.size;
-  var collect = [];
-  guilds.forEach(async (part) => {
-    if (part.id == 288143162394804224) return;
-    let g = await part.fetch();
-    let e = g.emojis.cache;
-    collect.push(...e);
+  let len = guilds.size;
+  let collect = [];
+  guilds.forEach(async (guild) => {
+    if (guild.id == 288143162394804224) return;
+    let g = await guild.fetch();
+    let emojis = guild.emojis.cache;
+    collect.push(...emojis);
     len--;
     if (len == 1) {
       emojis = new Map(collect);
     }
   });
+  console.log(emojis);
   // let sale = await priceTracker.run(954850);
   // if (sale) {
   //   let channel = await client.channels.fetch('412081820771942410');
@@ -62,20 +62,20 @@ client.once("ready", async () => {
   //   }
   // }, 3600000);
   // Reset and send message stats at 12 am
-  let channel = await client.channels.fetch('412081820771942410');
-  setInterval(async function () {
-    if (moment.tz('America/Los_Angeles').format('HH:mm') == '00:00') {
-      let embed = await checkMessageType.embed(guildMembers);
-      channel.send({ embeds: [embed] });
-      fs.writeFileSync('./resources/dailymessagestats/dailymessagestats.json', JSON.stringify([]));
-    }
-  }, 60000)
+  // let channel = await client.channels.fetch('412081820771942410');
+  // setInterval(async function () {
+  //   if (moment.tz('America/Los_Angeles').format('HH:mm') == '00:00') {
+  //     let embed = await checkMessageType.embed(guildMembers);
+  //     channel.send({ embeds: [embed] });
+  //     fs.writeFileSync('./resources/dailymessagestats/dailymessagestats.json', JSON.stringify([]));
+  //   }
+  // }, 60000)
 });
 client.commands = new Collection();
 
 // reads folders in /slashcommands, for each file, set as command
 
-const foldersPath = path.join(__dirname, 'resources/slashcommands');
+const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 
 for (const folder of commandFolders) {
@@ -91,13 +91,14 @@ for (const folder of commandFolders) {
       client.commands.set(command.data.name, command);
     } else {
       console.log(
-        `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
+        `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`,
       );
     }
   }
 }
 
 client.on(Events.InteractionCreate, async (interaction) => {
+  //? what is chatinputcommand, autocomplete
   if (!interaction.isChatInputCommand() && !interaction.isAutocomplete) return;
 
   const command = interaction.client.commands.get(interaction.commandName);

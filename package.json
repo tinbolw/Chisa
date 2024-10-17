@@ -4,7 +4,7 @@
   "description": "a discord bot",
   "main": "index.js",
   "scripts": {
-    "test": "node index.js"
+    "dev": "node index.js"
   },
   "author": "tinbolw",
   "license": "ISC",
