@@ -25,6 +25,7 @@ module.exports = {
       },
     ];
     //* bandage fix for string length, will add pagination at a later date
+    //! ACCOUNT FOR IF THERE ARE NO COMMANDS
     for (i in guildCommands) {
       // fields[0].value +=
       //   `[\`\`${guildCommands[i].name}\`\`](${"https://a.com"} '${
@@ -41,6 +42,8 @@ module.exports = {
       fields[1].value +=
         `${globalCommands[i].name}` + "\n";
     }
+    if (!guildCommands || guildCommands?.length == 0) fields[0].value = "Nothing yet...";
+    if (!globalCommands || globalCommands?.length == 0) fields[1].value = "Nothing yet..."; 
     const embed = new EmbedBuilder()
       .setTitle('Commands')
       .setFields(fields)
