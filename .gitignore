@@ -128,3 +128,13 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# extra
+res.gif
+resources/dailymessagestats/dailymessagestats.json
+.eslintrc.js
+Procfile
+todo.txt
+pnpm-lock.yaml
+management/
+.DS_Store

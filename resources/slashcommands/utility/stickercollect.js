@@ -1,0 +1,17 @@
+const { SlashCommandBuilder } = require('discord.js');
+const fs = require("fs");
+
+module.exports = {
+    data: new SlashCommandBuilder()
+      .setName('stickercollect')
+      .setDescription('collect guild stickers'),
+    async execute (interaction) {
+      if (interaction.user.id != '266413889682407428') {
+        interaction.editReply('Insufficient permissions.');
+      } else {
+        const stickers = await interaction.guild.stickers.fetch();
+        fs.writeFileSync("stickers.json", JSON.stringify(stickers));
+        interaction.editReply('Done');
+      }
+    }
+}
