@@ -138,3 +138,5 @@ todo.txt
 pnpm-lock.yaml
 management/
 .DS_Store
+err.log
+out.log
