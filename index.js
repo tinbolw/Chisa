@@ -11,7 +11,7 @@ const client = new Client({
   ],
   partials: ["CHANNEL"],
 });
-//todo migrate some of the old commands to slashcommands
+
 require('dotenv').config();
 const botPackage = require("./package.json");
 
