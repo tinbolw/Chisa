@@ -165,20 +165,20 @@ client.on("messageCreate", async (message) => {
     message.channel.send("brotato");
   }
   // Filter out mudae commands
-  const mudaeFilter = [
-    "$wa",
-    "$w",
-    "$ha",
-    "$h",
-    "$mml",
-    "$dk",
-    "$tu",
-    "$mm",
-    "$kakera",
-    "$daily",
-    "rolls",
-  ];
-  if (mudaeFilter.indexOf(message.content) == -1) checkMessageType.run(message);
+  // const mudaeFilter = [
+  //   "$wa",
+  //   "$w",
+  //   "$ha",
+  //   "$h",
+  //   "$mml",
+  //   "$dk",
+  //   "$tu",
+  //   "$mm",
+  //   "$kakera",
+  //   "$daily",
+  //   "rolls",
+  // ];
+  // if (mudaeFilter.indexOf(message.content) == -1) checkMessageType.run(message);
 });
 
 client.login(process.env.TOKEN);
