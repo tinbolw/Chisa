@@ -128,15 +128,23 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+pnpm-lock.yaml
 
-# extra
-res.gif
-resources/dailymessagestats/dailymessagestats.json
+# dev
 .eslintrc.js
 Procfile
 todo.txt
-pnpm-lock.yaml
 management/
-.DS_Store
+
+# foreverjs
 err.log
 out.log
+
+# etc
+.DS_Store
+
+# locally created
+res.gif
+resources/dailymessagestats/dailymessagestats.json
+emojis.json
+stickers.json

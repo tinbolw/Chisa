@@ -151,19 +151,19 @@ client.on("messageCreate", async (message) => {
   if (message.guildId === null)
     return message.channel.send("<:gay:976320149684617257>");
   //TODO map of names and just send image link
-  emojis.forEach((emoji) => {
-    if (`:${emoji.name.toLowerCase()}:` == `${message.content.toLowerCase()}`) {
-      message.delete();
-      message.channel.send(`${emoji}`);
-    }
-  });
-  if (message.content == "!corn") {
-    player.run(message);
-    message.channel.send("ed beef");
-  }
-  if (message.content == "!carrot") {
-    message.channel.send("brotato");
-  }
+  // emojis.forEach((emoji) => {
+  //   if (`:${emoji.name.toLowerCase()}:` == `${message.content.toLowerCase()}`) {
+  //     message.delete();
+  //     message.channel.send(`${emoji}`);
+  //   }
+  // });
+  // if (message.content == "!corn") {
+  //   player.run(message);
+  //   message.channel.send("ed beef");
+  // }
+  // if (message.content == "!carrot") {
+  //   message.channel.send("brotato");
+  // }
   // Filter out mudae commands
   // const mudaeFilter = [
   //   "$wa",
