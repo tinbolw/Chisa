@@ -1,3 +1,4 @@
+const debounce = require('debounce-promise');
 const { Client, Collection, Events, GatewayIntentBits } = require("discord.js");
 const client = new Client({
   intents: [
@@ -99,7 +100,6 @@ for (const folder of commandFolders) {
 }
 
 client.on(Events.InteractionCreate, async (interaction) => {
-  //? what is chatinputcommand, autocomplete
   if (!interaction.isChatInputCommand() && !interaction.isAutocomplete) return;
 
   const command = interaction.client.commands.get(interaction.commandName);
@@ -109,8 +109,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
   } 
   if (interaction.isAutocomplete()) {
     try {
-      // await interaction.deferReply();
-      await command.autocomplete(interaction);
+      // debounce-promise
+      const debouncer = debounce(() => command.autocomplete(interaction), 250);
+      return debouncer();
     } catch (error) {
       console.error(error);
       await interaction.reply({
