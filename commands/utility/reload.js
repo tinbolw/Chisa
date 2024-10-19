@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
 const slashcommands = require('../../lib/getslashcommands');
-const { autocomplete } = require('./autocomplete');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -12,24 +11,25 @@ module.exports = {
         .setAutocomplete(true)
         .setRequired(true)),
   async autocomplete(interaction) {
-    const query = interaction.options.getString('command');
+    const commandName = interaction.options.getString('command');
     const guildCommands = await slashcommands.getGuild();
-    interaction.respond([{name:'test', value:'value'}])
-    console.log(guildCommands);
-
+    let commandMatches = [];
+    guildCommands.forEach(command => {
+      if (command.name.includes(commandName)) commandMatches.push({ name: command.name, value: command.name });
+    });
+    interaction.respond(commandMatches);
   },
   async execute(interaction) {
     if (interaction.user.id != '266413889682407428') {
-      await interaction.editReply("You can't do this!");
+      await interaction.editReply("You mayn't do this!");
     } else {
-      const commandName = interaction.options.getString('command', true).toLowerCase();
+      // * the code below was definitely ripped from somewhere... probably the wiki or guide.
+      const commandName = interaction.options.getString('command');
       const command = interaction.client.commands.get(commandName);
-
       if (!command) {
         return interaction.editReply(`There is no command with name \`${commandName}\`!`);
       } else {
-        delete require.cache[require.resolve(`./${command.data.name}.js`)];
-
+        delete require.cache[require.resolve(`./${command.data.name}.js`)]
         try {
           interaction.client.commands.delete(command.data.name);
           const newCommand = require(`./${command.data.name}.js`);

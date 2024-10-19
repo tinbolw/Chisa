@@ -8,7 +8,7 @@ module.exports = {
   async execute(interaction) {
     // hard coded permission for personal use
     if (interaction.user.id != '266413889682407428')
-      return interaction.editReply('Insufficient permissions.');
+      return interaction.editReply('You mayn\'t do this!');
     const emoji = await interaction.guild.emojis.fetch();
     fs.writeFileSync("emojis.json", JSON.stringify(emoji));
     return interaction.editReply('Done');

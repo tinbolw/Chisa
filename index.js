@@ -109,6 +109,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
   } 
   if (interaction.isAutocomplete()) {
     try {
+      //* should probably make it differentiate between expensive and nonexpensive calls
       // debounce-promise
       const debouncer = debounce(() => command.autocomplete(interaction), 250);
       return debouncer();
