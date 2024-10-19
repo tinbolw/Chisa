@@ -1,53 +1,99 @@
-// const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-// const path = require("node:path");
-// const package = require(path.join(__dirname, "../../package.json"));
-// const getSlashCommands = require(path.join(__dirname, "../../lib/getslashcommands.js"));
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonStyle, ButtonBuilder } = require('discord.js');
+const path = require('node:path');
+const package = require(path.join(__dirname, '../../package.json'));
+const getSlashCommands = require(path.join(__dirname, '../../lib/getslashcommands.js'));
 
-// //!! FIX LENGTH OF DESC NOW 
+//* current command has a listing for guild commands, which is primarily useful for development
+//* if plans to expand, make it show global for all else instead
 
-// module.exports = {
-//   data: new SlashCommandBuilder()
-//     .setName('help')
-//     .setDescription('Commands and other info'),
-//   async execute (interaction) {
-//     var guildCommands = await getSlashCommands.guild();
-//     var globalCommands = await getSlashCommands.global();
-//     var fields = [
-//       {
-//         name: "__Slash Commands (Guild)__",
-//         value: "",
-//         inline: true,
-//       },
-//       {
-//         name: "__Slash Commands (Global)__",
-//         value: "",
-//         inline: true,
-//       },
-//     ];
-//     //* bandage fix for string length, will add pagination at a later date
-//     //! ACCOUNT FOR IF THERE ARE NO COMMANDS
-//     for (i in guildCommands) {
-//       // fields[0].value +=
-//       //   `[\`\`${guildCommands[i].name}\`\`](${"https://a.com"} '${
-//       //     guildCommands[i].description
-//       //   }')` + "\n";
-//       fields[0].value +=
-//         `${guildCommands[i].name}` + "\n";
-//     }
-//     for (i in globalCommands) {
-//       // fields[1].value +=
-//       //   `[\`\`${globalCommands[i].name}\`\`](${"https://a.com"} '${
-//       //     globalCommands[i].description
-//       //   }')` + "\n";
-//       fields[1].value +=
-//         `${globalCommands[i].name}` + "\n";
-//     }
-//     if (!guildCommands || guildCommands?.length == 0) fields[0].value = "Nothing yet...";
-//     if (!globalCommands || globalCommands?.length == 0) fields[1].value = "Nothing yet..."; 
-//     const embed = new EmbedBuilder()
-//       .setTitle('Commands')
-//       .setFields(fields)
-//       .setFooter({text: "Page 1 | Version " + package.version});
-//     interaction.editReply({embeds: [embed]});
-//   },
-// };
+/**
+ * Gets application commands json using the Discord API, formats them into Objects with name and
+ * value keys, and chunks them into arrays of size 25.
+ * @returns Array of arrays of commands, with each inner array having a max size of 25.
+ */
+async function chunkCommands() {
+  // * will fetch commands every time page changes
+  const guildCommands = await getSlashCommands.getGuild();
+  // const globalCommands = await getSlashCommands.getGlobal();
+  const pages = Math.ceil(guildCommands.length / 24);
+
+  guildCommands.forEach(command => {
+    //* https://stackoverflow.com/a/47192402
+    Object.keys(command).forEach((key) => ['name', 'description'].includes(key) || delete command[key]);
+    //* https://stackoverflow.com/a/50101979, first comment
+    delete Object.assign(command, { value: command.description }).description;
+  });
+  // todo formatting kinda weird for no commands
+  var commandChunks = guildCommands.length == 0 ? [[{ name: 'Commands', value: 'There are no commands.' }]] : [];
+
+  for (let i = 0; i < pages; i++) {
+    let chunkEnd = (i + 1) * 24;
+    //* if anyone is reading this, let me know if there is a better way of formatting this
+    commandChunks.push(guildCommands.slice(i * 24, i == pages - 1 ? guildCommands.length % 24 == 0 ? chunkEnd : guildCommands.length % 24 + chunkEnd : chunkEnd));
+  }
+  console.log(commandChunks);
+  return commandChunks;
+}
+
+module.exports = {
+  data: new SlashCommandBuilder()
+    .setName('help')
+    .setDescription('Commands and other info'),
+  async execute(interaction) {
+    const commandChunks = await chunkCommands();
+    const maxPage = commandChunks.length;
+    var page = 1;
+    commandChunks.forEach(chunk => {
+      chunk.forEach(command => {
+        command.inline = true;
+      })
+    })
+
+    function generateButtonRow() {
+      const previous = new ButtonBuilder()
+        .setCustomId('previous')
+        .setLabel('<')
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(page == 1);
+
+      const next = new ButtonBuilder()
+        .setCustomId('next')
+        .setLabel('>')
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(page == maxPage);
+      return row = new ActionRowBuilder()
+        .addComponents(previous, next);
+    }
+
+    function generateEmbedData() {
+      const embed = new EmbedBuilder()
+        .setTitle('Help')
+        .setDescription('__**Commands**__')
+        .setFields(commandChunks[page - 1])
+        .setFooter({ text: `Page ${page}/${maxPage} | Version ${package.version}` });
+      return { embeds: [embed], components: maxPage == 1 ? undefined : [generateButtonRow()] };
+    }
+
+    async function createCollector() {
+      const collectorFilter = i => i.user.id === interaction.user.id;
+      try {
+        const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 30_000 });
+        if (confirmation.customId === 'previous') {
+          page--;
+          await confirmation.update(generateEmbedData());
+          createCollector();
+        } else if (confirmation.customId === 'next') {
+          page++;
+          await confirmation.update(generateEmbedData());
+          createCollector();
+        }
+      } catch (e) {
+        // timeout
+        console.log(e);
+        await interaction.editReply({ components: [] });
+      }
+    }
+    const response = await interaction.editReply(generateEmbedData());
+    if (maxPage != 1) createCollector();
+  },
+};

@@ -13,7 +13,7 @@ module.exports = {
   async execute(interaction) {
     const user = interaction.options.getUser('user') ?? interaction.user;
     const avatarEmbed = new EmbedBuilder()
-      .setImage(`${user.displayAvatarURL()}?size=2048`) // ? not sure if there is a way to get large size other than this
+      .setImage(`${user.displayAvatarURL({size:4096})}`) // 4096 max size
       .setTitle(user.tag);
     interaction.editReply({
       embeds: [avatarEmbed]

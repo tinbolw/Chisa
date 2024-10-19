@@ -100,13 +100,16 @@ for (const folder of commandFolders) {
 }
 
 client.on(Events.InteractionCreate, async (interaction) => {
-  if (!interaction.isChatInputCommand() && !interaction.isAutocomplete) return;
+  if (interaction.isAutocomplete() ||
+    interaction.isMessageComponent() ||
+    interaction.isButton()
+  ) return;
 
   const command = interaction.client.commands.get(interaction.commandName);
 
   if (!command) {
     console.error(`No command matching ${interaction.commandName} was found.`);
-  } 
+  }
   if (interaction.isAutocomplete()) {
     try {
       //* should probably make it differentiate between expensive and nonexpensive calls
