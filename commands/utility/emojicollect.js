@@ -4,7 +4,7 @@ const fs = require("fs");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('emojicollect')
-    .setDescription('Collect emojis'),
+    .setDescription('Collect guild emojis'),
   async execute(interaction) {
     // hard coded permission for personal use
     if (interaction.user.id != '266413889682407428')
