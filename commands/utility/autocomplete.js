@@ -1,3 +1,4 @@
+//! THIS COMMAND IS JUST FOR TESTING PURPOSES. IMPLEMENT FUNCTIONALITY INTO ANILIST COMMANDS.
 const { SlashCommandBuilder } = require('discord.js');
 
 const gqlr = require("graphql-request");
