@@ -2,6 +2,10 @@ const { SlashCommandBuilder } = require('discord.js');
 const slashcommands = require('../../lib/getslashcommands');
 const fs = require('fs');
 
+//* this command works assuming:
+//* all commands are in subdirectories of the /commands folder
+//* all commands are named the same as their filename 
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('reload')

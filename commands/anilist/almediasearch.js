@@ -1,12 +1,10 @@
 const {
   SlashCommandBuilder,
-  EmbedBuilder,
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
 } = require('discord.js');
-const striptags = require('striptags');
-const { fetchMedia, searchMedia } = require('../../lib/anilistgql');
+const { fetchMedia, searchMedia, generateMediaEmbed } = require('../../lib/anilistgql');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -32,39 +30,8 @@ module.exports = {
     const data = await fetchMedia(mediaType, mediaTitle);
     const timeElapsed = Date.now() - startTime;
     // initialize embed and collector
-    const response = await interaction.editReply(generateReplyOptions());
+    const response = await interaction.editReply({ embeds: [generateMediaEmbed(data, expanded, timeElapsed, mediaType)], components: [generateButtonRow()] });
     createCollector();
-
-    function generateReplyOptions() {
-      const embed = new EmbedBuilder()
-        .setTitle(data.title.english)
-        .setDescription(`${striptags(data.description).substring(0, expanded ? 4094 : 257)}${expanded ? `` : `...`}`)
-        .setURL(data.siteUrl)
-        //? not sure if extraLarge is available for all anime, but if not, use last entry in
-        //? coverImage instead
-        .setImage(data.coverImage.extraLarge)
-        .setColor(data.coverImage.color)
-        .setFooter({ text: `Fetched in ${timeElapsed} ms | ${mediaType}`, iconURL: 'https://cdn.discordapp.com/attachments/975191225340686377/1297388691458625639/icon.png' });
-      if (expanded) {
-        let fields = [];
-        //* due to the parsing requirements of nearly every field, assigning them dynamically is
-        //* practically pointless due to the number of exceptions
-        fields.push({ name: "Status", value: data.status.replaceAll('_', ' '), inline: true });
-        fields.push({ name: "Format", value: data.format.replaceAll('_', ' '), inline: true });
-        fields.push({ name: "Popularity", value: String(data.popularity), inline: true });
-        if (data.episodes) { // parse out fields for manga, for which they do not exist
-          fields.push({
-            name: `${Math.floor(data.duration / 60) == 0 ? `Episode ` : ``}Duration`, value: `${Math.floor(data.duration / 60) == 0 ? `${data.duration} min` : `${Math.floor(data.duration / 60)} hr ${Math.floor(data.duration % 60)} min`}`, inline: true
-          });
-          if (data.episodes != 1) fields.push({ name: "Episodes", value: String(data.episodes), inline: true });
-        }
-        fields.push({ name: "Mean Score", value: String(data.meanScore), inline: true });
-        fields.push({ name: "Start Date", value: `${data.startDate.month}/${data.startDate.day}/${data.startDate.year}`, inline: true });
-        fields.push({ name: "End Date", value: `${data.endDate.month}/${data.endDate.day}/${data.endDate.year}`, inline: true });
-        embed.setFields(fields);
-      }
-      return { embeds: [embed], components: [generateButtonRow()] };
-    }
 
     function generateButtonRow() {
       const changeEmbedStateButton = new ButtonBuilder()
@@ -81,7 +48,7 @@ module.exports = {
         const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 30_000 });
         if (confirmation.customId === 'changeEmbedState') {
           expanded = !expanded;
-          await confirmation.update(generateReplyOptions());
+          await confirmation.update({ embeds: [generateMediaEmbed(data, expanded, timeElapsed, mediaType)], components: [generateButtonRow()] });
           createCollector();
         }
       } catch (e) {
