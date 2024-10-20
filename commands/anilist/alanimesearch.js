@@ -19,16 +19,18 @@ module.exports = {
         .setAutocomplete(true),
     ),
   async execute(interaction) {
+    var expanded = false;
     const name = interaction.options.getString('name');
     const startTime = Date.now();
     const data = await fetchAnime(name);
     const timeElapsed = Date.now() - startTime;
-    return await interaction.editReply({ embeds: [generateEmbedData()] });
+    const response = await interaction.editReply(generateReplyOptions());
+    createCollector();
 
-    function generateEmbedData(expanded) {
+    function generateReplyOptions() {
       const embed = new EmbedBuilder()
         .setTitle(data.title.english)
-        .setDescription(`${striptags(data.description).substring(0, expanded ? 4094 : 257)}${expanded?``:`...`}`)
+        .setDescription(`${striptags(data.description).substring(0, expanded ? 4094 : 257)}${expanded ? `` : `...`}`)
         .setURL(data.siteUrl)
         //? not sure if extraLarge is available for all anime, but if not, use last entry in
         //? coverImage instead
@@ -49,8 +51,34 @@ module.exports = {
         fields.push({ name: "End Date", value: `${data.endDate.month}/${data.endDate.day}/${data.endDate.year}`, inline: true });
         embed.setFields(fields);
       }
-      return embed;
+      return {embeds:[embed], components:[generateButtonRow()]};
     }
+
+    function generateButtonRow() {
+      const changeEmbedStateButton = new ButtonBuilder()
+        .setCustomId('changeEmbedState')
+        .setStyle(ButtonStyle.Primary)
+        .setLabel(expanded?'Collapse':'Expand');
+
+      return new ActionRowBuilder()
+        .addComponents(changeEmbedStateButton);
+    }
+
+    async function createCollector() {
+      const collectorFilter = i => i.user.id === interaction.user.id;
+      try {
+        const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 30_000 });
+        if (confirmation.customId === 'changeEmbedState') {
+          expanded = !expanded;
+          await confirmation.update(generateReplyOptions());
+          createCollector();
+        }
+      } catch (e) {
+        // timeout, usually
+        await interaction.editReply({ components: [] });
+      }
+    }
+
   },
   async autocomplete(interaction) {
     const name = interaction.options.getString('name');
