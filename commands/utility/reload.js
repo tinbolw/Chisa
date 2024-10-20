@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const slashcommands = require('../../lib/getslashcommands');
+const fs = require('fs');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -26,18 +27,31 @@ module.exports = {
       // * the code below was definitely ripped from somewhere... probably the wiki or guide.
       const commandName = interaction.options.getString('command');
       const command = interaction.client.commands.get(commandName);
+      var commandPaths = [];
+
+      // load all command paths
+      for (const folder of fs.readdirSync(__dirname + '/../')) {
+        fs.readdirSync(__dirname + "/../" + folder)
+          .filter((file) => file.endsWith(".js"))
+          .forEach(file => {
+            commandPaths.push(`${__dirname}/../${folder}/${file}`);
+          });
+      }
+      //* https://stackoverflow.com/a/9363293, regex
+      const commandPath = commandPaths.filter((command) => command.match(/[\w-]+\./)[0].slice(0, -1) == commandName)[0];
+
       if (!command) {
         return interaction.editReply(`There is no command with name \`${commandName}\`!`);
       } else {
-        delete require.cache[require.resolve(`./${command.data.name}.js`)]
+        delete require.cache[require.resolve(commandPath)];
         try {
           interaction.client.commands.delete(command.data.name);
-          const newCommand = require(`./${command.data.name}.js`);
+          const newCommand = require(commandPath);
           interaction.client.commands.set(newCommand.data.name, newCommand);
           await interaction.editReply(`Command \`${newCommand.data.name}\` was reloaded!`);
         } catch (error) {
           console.error(error);
-          await interaction.editReply(`There was an error while reloading a command \`${command.data.name}\`:\n\`\`\`${error.message}\`\`\``);
+          await interaction.editReply(`There was an error while reloading the command \`${command.data.name}\`:\n\`\`\`${error.toString().substring(0, 513)}\`\`\``);
         }
       }
     }
