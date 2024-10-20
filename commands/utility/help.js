@@ -17,6 +17,7 @@ async function chunkCommands() {
   // const globalCommands = await getSlashCommands.getGlobal();
   const pages = Math.ceil(guildCommands.length / 24);
 
+  // remove irrelevant keypairs, and change key description to value
   guildCommands.forEach(command => {
     //* https://stackoverflow.com/a/47192402
     Object.keys(command).forEach((key) => ['name', 'description'].includes(key) || delete command[key]);
@@ -24,14 +25,13 @@ async function chunkCommands() {
     delete Object.assign(command, { value: command.description }).description;
   });
   // todo formatting kinda weird for no commands
-  var commandChunks = guildCommands.length == 0 ? [[{ name: 'Commands', value: 'There are no commands.' }]] : [];
+  var commandChunks = guildCommands.length == 0 ? [[{ name: 'There are no commands.', value: 'None!' }]] : [];
 
   for (let i = 0; i < pages; i++) {
     let chunkEnd = (i + 1) * 24;
     //* if anyone is reading this, let me know if there is a better way of formatting this
     commandChunks.push(guildCommands.slice(i * 24, i == pages - 1 ? guildCommands.length % 24 == 0 ? chunkEnd : guildCommands.length % 24 + chunkEnd : chunkEnd));
   }
-  console.log(commandChunks);
   return commandChunks;
 }
 
@@ -43,6 +43,7 @@ module.exports = {
     const commandChunks = await chunkCommands();
     const maxPage = commandChunks.length;
     var page = 1;
+    // set all command fields to be inline
     commandChunks.forEach(chunk => {
       chunk.forEach(command => {
         command.inline = true;
