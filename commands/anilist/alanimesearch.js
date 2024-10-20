@@ -5,7 +5,8 @@ const {
   ButtonBuilder,
   ButtonStyle,
 } = require('discord.js');
-const { fetchAnime } = require('../../lib/anilistgql');
+const striptags = require('striptags');
+const { fetchAnime, searchAnime } = require('../../lib/anilistgql');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -19,107 +20,43 @@ module.exports = {
     ),
   async execute(interaction) {
     const name = interaction.options.getString('name');
-    console.log(await fetchAnime('Urusei Yatsura'));
+    const startTime = Date.now();
+    const data = await fetchAnime(name);
+    const timeElapsed = Date.now() - startTime;
+    return await interaction.editReply({ embeds: [generateEmbedData()] });
 
-    
-    // // object keys are the six extra entries when embed is expanded
-    // var fields = [];
-    // var keys = Object.keys(response.Media);
-    // keys.splice(0, 2);
-    // keys.splice(-2, 2);
-    // // adding fields dynamically, formatting startDate => Start date
-    // for (let i of keys) {
-    //   fields.push({
-    //     name: (i.replace(/([A-Z])/g, ' $1')).charAt(0).toUpperCase() + i.replace(/([A-Z])/g, ' $1').slice(1),
-    //     value: '',
-    //     inline: true,
-    //   });
-    // }
-    // var months = [
-    //   'January',
-    //   'February',
-    //   'March',
-    //   'April',
-    //   'May',
-    //   'June',
-    //   'July',
-    //   'August',
-    //   'September',
-    //   'October',
-    //   'November',
-    //   'December',
-    // ];
-    // // setting field values, special cases for start/end dates and runtime
-    // fields.forEach(function (v, i) {
-    //   if (i <= 1) {
-    //     v.value = `${months[response.Media[keys[i]].month - 1] == undefined ? '' : months[response.Media[keys[i]].month - 1] + ' '}${response.Media.day == null ? '' : response.Media.day == null + ' '}${response.Media[keys[i]].year}`
-    //   } else if (i == 4) {
-    //     v.value = response.Media[keys[i]] += ' minutes';
-    //   } else {
-    //     v.value = `${response.Media[keys[i]]}`;
-    //   }
-    // });
-    // // Regex formatting to remove html fragments from description
-    // const shortEmbed = new EmbedBuilder()
-    //   .setTitle(response.Media.title.english)
-    //   .setDescription(response.Media.description.replace(new RegExp('\<(.*?)\>', 'g'), '').substr(0, 512) + '...')
-    //   .setURL(response.Media.siteUrl)
-    //   .setImage(response.Media.coverImage.extraLarge);
-    // const longEmbed = new EmbedBuilder()
-    //   .setTitle(response.Media.title.english)
-    //   .setDescription(response.Media.description.replace(new RegExp('\<(.*?)\>', 'g'), '').length > 4096 ? response.Media.description.replace(new RegExp('\<(.*?)\>', 'g'), '').substr(0, 4093) + '...' : response.Media.description.replace(new RegExp('\<(.*?)\>', 'g'), '').substr(0, 4096))
-    //   .setURL(response.Media.siteUrl)
-    //   .setImage(response.Media.coverImage.extraLarge)
-    //   .setFields(fields);
-    // const expandButton = new ActionRowBuilder().addComponents(
-    //   new ButtonBuilder()
-    //     .setCustomId('expand')
-    //     .setLabel('More')
-    //     .setStyle(ButtonStyle.Primary)
-    // );
-    // const shrinkButton = new ActionRowBuilder().addComponents(
-    //   new ButtonBuilder()
-    //     .setCustomId('shrink')
-    //     .setLabel('Less')
-    //     .setStyle(ButtonStyle.Primary)
-    // );
-    // const reply = await interaction.editReply({
-    //   embeds: [shortEmbed],
-    //   components: [expandButton],
-    // });
-    // const filter = (filteredInteraction) =>
-    //   (filteredInteraction.customId === 'expand' || filteredInteraction.customId === 'shrink') &&
-    //   filteredInteraction.user.id === interaction.user.id;
-    // function generateButton() {
-    //   reply
-    //     .awaitMessageComponent({
-    //       filter: filter,
-    //       idle: 30000,
-    //       componentType: 2,
-    //     })
-    //     .then(async (buttonInteraction) => {
-    //       // only defers to ensure it works on slow phone
-    //       await buttonInteraction.deferUpdate();
-    //       buttonInteraction.editReply({
-    //         embeds: [buttonInteraction.customId === 'shrink' ? shortEmbed : longEmbed],
-    //         components: [buttonInteraction.customId === 'shrink' ? expandButton : shrinkButton],
-    //       });
-    //       generateButton();
-    //       // catch idle
-    //     }).catch((e) => {
-    //       // prevents bot from stopping if reply was deleted
-    //       if ((`${e}`).indexOf('idle') != -1) {
-    //         interaction.editReply({
-    //           components: []
-    //         });
-    //       } else {
-    //         console.log('reply was deleted');
-    //       }
-    //     });
-    // }
-    // generateButton();
+    function generateEmbedData(expanded) {
+      const embed = new EmbedBuilder()
+        .setTitle(data.title.english)
+        .setDescription(`${striptags(data.description).substring(0, expanded ? 4094 : 257)}${expanded?``:`...`}`)
+        .setURL(data.siteUrl)
+        //? not sure if extraLarge is available for all anime, but if not, use last entry in
+        //? coverImage instead
+        .setImage(data.coverImage.extraLarge)
+        .setFooter({ text: `Fetched in ${timeElapsed} ms`, iconURL: 'https://cdn.discordapp.com/attachments/975191225340686377/1297388691458625639/icon.png' });
+      if (expanded) {
+        let fields = [];
+        //* due to the parsing requirements of nearly every field, assigning them dynamically is
+        //* practically pointless due to the number of exceptions
+        fields.push({ name: "Status", value: data.status, inline: true });
+        fields.push({ name: "Format", value: data.format.replace('_', ' '), inline: true });
+        fields.push({ name: "Popularity", value: String(data.popularity), inline: true });
+        fields.push({
+          name: `${Math.floor(data.duration / 60) == 0 ? `Episode ` : ``}Duration`, value: `${Math.floor(data.duration / 60) == 0 ? `${data.duration} min` : `${Math.floor(data.duration / 60)} hr ${Math.floor(data.duration % 60)} min`}`, inline: true
+        });
+        if (data.episodes != 1) fields.push({ name: "Episodes", value: String(data.episodes), inline: true });
+        fields.push({ name: "Start Date", value: `${data.startDate.month}/${data.startDate.day}/${data.startDate.year}`, inline: true });
+        fields.push({ name: "End Date", value: `${data.endDate.month}/${data.endDate.day}/${data.endDate.year}`, inline: true });
+        embed.setFields(fields);
+      }
+      return embed;
+    }
   },
   async autocomplete(interaction) {
-
+    const name = interaction.options.getString('name');
+    const results = await searchAnime(name);
+    await interaction.respond(
+      results.map(choice => ({ name: choice, value: choice })),
+    );
   }
 };
