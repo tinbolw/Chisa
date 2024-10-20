@@ -35,13 +35,14 @@ module.exports = {
         //? not sure if extraLarge is available for all anime, but if not, use last entry in
         //? coverImage instead
         .setImage(data.coverImage.extraLarge)
+        .setColor(data.coverImage.color)
         .setFooter({ text: `Fetched in ${timeElapsed} ms`, iconURL: 'https://cdn.discordapp.com/attachments/975191225340686377/1297388691458625639/icon.png' });
       if (expanded) {
         let fields = [];
         //* due to the parsing requirements of nearly every field, assigning them dynamically is
         //* practically pointless due to the number of exceptions
-        fields.push({ name: "Status", value: data.status, inline: true });
-        fields.push({ name: "Format", value: data.format.replace('_', ' '), inline: true });
+        fields.push({ name: "Status", value: data.status.replaceAll('_', ' '), inline: true });
+        fields.push({ name: "Format", value: data.format.replaceAll('_', ' '), inline: true });
         fields.push({ name: "Popularity", value: String(data.popularity), inline: true });
         fields.push({
           name: `${Math.floor(data.duration / 60) == 0 ? `Episode ` : ``}Duration`, value: `${Math.floor(data.duration / 60) == 0 ? `${data.duration} min` : `${Math.floor(data.duration / 60)} hr ${Math.floor(data.duration % 60)} min`}`, inline: true

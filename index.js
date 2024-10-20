@@ -1,4 +1,3 @@
-const debounce = require('debounce-promise');
 const { Client, Collection, Events, GatewayIntentBits } = require("discord.js");
 const client = new Client({
   intents: [
@@ -13,23 +12,24 @@ const client = new Client({
   partials: ["CHANNEL"],
 });
 
-require('dotenv').config();
+const fs = require("fs");
+const path = require("node:path");
+const debounce = require('debounce-promise');
 const botPackage = require("./package.json");
+
+require('dotenv').config();
 
 // const checkMessageType = require("./resources/dailymessagestats/checkMessageType.js");
 // const priceTracker = require("./resources/pricetracker.js");
 // const player = require("./resources/player.js")
 
-const fs = require("fs");
-const path = require("node:path");
-const moment = require("moment-timezone");
-
-var emojis = [];
+// var emojis = [];
 
 client.once("ready", async () => {
   console.log(
-    `${moment().tz("America/Los_Angeles").format("HH:mm")} => ${client.user.tag
-    } ${botPackage.version} is a go`
+    `${new Intl.DateTimeFormat('en-US', {
+      hour: "2-digit", minute: "2-digit", timeZoneName: "short"
+    }).format(new Date(Date.now()))} => ${client.user.tag} ${botPackage.version} is a go`
   );
   client.user.setActivity("/help");
   // const guild = await client.guilds.fetch("288143162394804224");
@@ -75,7 +75,7 @@ client.once("ready", async () => {
 });
 client.commands = new Collection();
 
-// reads folders in /slashcommands, for each file, set as command
+// reads folders in /commands, for each js file, set as command
 
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
@@ -104,7 +104,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     interaction.isMessageComponent() ||
     interaction.isButton()
   ) return;
-  
+
   const command = interaction.client.commands.get(interaction.commandName);
 
   if (!command) {
@@ -128,22 +128,17 @@ client.on(Events.InteractionCreate, async (interaction) => {
     try {
       await command.execute(interaction);
     } catch (error) {
-      if (command.data.name == "askgpt") {
-        return;
+      console.error(error);
+      if (command.execute.toString().includes("editReply")) {
+        await interaction.editReply({
+          content: "There was an error while executing this command!",
+          ephemeral: true,
+        });
       } else {
-        console.error(error);
-        if (command.execute.toString().includes("editReply")) {
-          await interaction.editReply({
-            content: "There was an error while executing this command!",
-            ephemeral: true,
-          });
-        } else {
-          await interaction.reply({
-            content: "There was an error while executing this command!",
-            ephemeral: true,
-          });
-        }
-
+        await interaction.reply({
+          content: "There was an error while executing this command!",
+          ephemeral: true,
+        });
       }
     }
   }
