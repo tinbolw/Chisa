@@ -17,7 +17,7 @@ module.exports = {
     ),
   async execute(interaction) {
     const mediaType = interaction.options.getString('type');
-    const nsfw = interaction.options.getBoolean('nsfw');
+    const nsfw = interaction.options.getBoolean('nsfw') ?? false;
     const startTime = Date.now();
     const data = await randomMedia(mediaType, nsfw);
     const timeElapsed = Date.now() - startTime;
