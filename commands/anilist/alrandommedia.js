@@ -1,5 +1,6 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { randomMedia, generateMediaEmbed } = require('../../lib/anilistgql');
+const { SlashCommandBuilder } = require('discord.js');
+const { randomMedia } = require('../../lib/api/anilistgql');
+const { generateMediaEmbed, generateButtonRow } = require('../../lib/embed/anilistEmbeds');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -10,17 +11,34 @@ module.exports = {
         .setDescription('The type of the media')
         .setRequired(true)
         .setChoices([{ name: 'anime', value: 'ANIME' }, { name: 'manga', value: 'MANGA' }]),
-    ).addBooleanOption(option =>
+    )
+    .addBooleanOption(option =>
       option.setName('nsfw')
-      // likely will not add an option to search for only NSFW content.
+        // likely will not add an option to search for only NSFW content.
         .setDescription('Whether or not to include NSFW content.'),
     ),
   async execute(interaction) {
+    var expanded = false;
     const mediaType = interaction.options.getString('type');
     const nsfw = interaction.options.getBoolean('nsfw') ?? false;
-    const startTime = Date.now();
-    const data = await randomMedia(mediaType, nsfw);
-    const timeElapsed = Date.now() - startTime;
-    interaction.editReply({ embeds: [generateMediaEmbed(data, false, timeElapsed, mediaType)] });
+    const fetchData = await randomMedia(mediaType, nsfw);
+    const data = fetchData.data;
+    const response = await interaction.editReply({ embeds: [generateMediaEmbed(data, false, fetchData.timeElapsed, mediaType)], components: [generateButtonRow(expanded)] });
+    createCollector();
+
+    async function createCollector() {
+      const collectorFilter = i => i.user.id === interaction.user.id;
+      try {
+        const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 30_000 });
+        if (confirmation.customId === 'changeEmbedState') {
+          expanded = !expanded;
+          await confirmation.update({ embeds: [generateMediaEmbed(data, expanded, fetchData.timeElapsed, mediaType)], components: [generateButtonRow(expanded)] });
+          createCollector();
+        }
+      } catch (e) {
+        // timeout, usually
+        await interaction.editReply({ components: [] });
+      }
+    }
   },
 };
