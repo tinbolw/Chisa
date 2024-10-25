@@ -26,10 +26,9 @@ require('dotenv').config();
 // var emojis = [];
 
 client.once("ready", async () => {
+  const date = new Intl.DateTimeFormat('en-US', { month:"2-digit", day:"2-digit", year:"numeric", hour: "2-digit", minute: "2-digit", timeZoneName: "short" }).format(new Date(Date.now()));
   console.log(
-    `${new Intl.DateTimeFormat('en-US', {
-      hour: "2-digit", minute: "2-digit", timeZoneName: "short"
-    }).format(new Date(Date.now()))} => ${client.user.tag} ${botPackage.version} is a go`
+    `${date} => ${client.user.tag} ${botPackage.version} is a go`
   );
   client.user.setActivity("/help");
   // const guild = await client.guilds.fetch("288143162394804224");

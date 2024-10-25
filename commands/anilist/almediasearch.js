@@ -21,18 +21,21 @@ module.exports = {
         .setDescription('The title of the media')
         .setRequired(true)
         .setAutocomplete(true),
+    ).addBooleanOption(option =>
+      option.setName('nsfw')
+        .setDescription('Whether or not to include NSFW content.'),
     ),
   async execute(interaction) {
     var expanded = false;
+    const nsfw = interaction.options.getBoolean('nsfw') ?? false;
     const mediaType = interaction.options.getString('type');
     const mediaTitle = interaction.options.getString('title');
     const startTime = Date.now();
-    const data = await fetchMedia(mediaType, mediaTitle);
+    const data = await fetchMedia(mediaType, mediaTitle, nsfw);
     const timeElapsed = Date.now() - startTime;
     // initialize embed and collector
     const response = await interaction.editReply({ embeds: [generateMediaEmbed(data, expanded, timeElapsed, mediaType)], components: [generateButtonRow()] });
     createCollector();
-
     function generateButtonRow() {
       const changeEmbedStateButton = new ButtonBuilder()
         .setCustomId('changeEmbedState')
@@ -59,10 +62,11 @@ module.exports = {
 
   },
   async autocomplete(interaction) {
+    const nsfw = interaction.options.getBoolean('nsfw') ?? false;
     const mediaType = await interaction.options.getString('type');
     const mediaTitle = await interaction.options.getString('title');
     // catch searching for nonexistent media type
-    const results = mediaType ? await searchMedia(mediaType, mediaTitle) : ['Choose a media type first.'];
+    const results = mediaType ? await searchMedia(mediaType, mediaTitle, nsfw) : ['Choose a media type first.'];
     await interaction.respond(
       results.map(choice => ({ name: choice, value: choice }))
     );
