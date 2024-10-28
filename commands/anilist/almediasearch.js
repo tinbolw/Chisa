@@ -30,8 +30,8 @@ module.exports = {
     const fetchData = await fetchMedia(mediaType, mediaTitle, nsfw);
     const data = fetchData.data;
     // initialize embed and collector
-    const response = await interaction.editReply({ embeds: [generateMediaEmbed(data, expanded, fetchData.timeElapsed, mediaType)], components: [generateButtonRow(expanded)] });
-    createCollector();
+    const response = await interaction.editReply({ embeds: [generateMediaEmbed(data, expanded, fetchData.timeElapsed, mediaType)], components: data.status == 404 ? null : [generateButtonRow(expanded)] });
+    if (data.status != 404) createCollector();
 
     async function createCollector() {
       const collectorFilter = i => i.user.id === interaction.user.id;
