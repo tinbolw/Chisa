@@ -24,7 +24,7 @@ module.exports = {
     const fetchData = await randomMedia(mediaType, nsfw);
     const data = fetchData.data;
     const response = await interaction.editReply({ embeds: [generateMediaEmbed(data, false, fetchData.timeElapsed, mediaType)], components: [generateButtonRow(expanded)] });
-    createCollector();
+    await createCollector();
 
     async function createCollector() {
       const collectorFilter = i => i.user.id === interaction.user.id;
@@ -33,7 +33,7 @@ module.exports = {
         if (confirmation.customId === 'changeEmbedState') {
           expanded = !expanded;
           await confirmation.update({ embeds: [generateMediaEmbed(data, expanded, fetchData.timeElapsed, mediaType)], components: [generateButtonRow(expanded)] });
-          createCollector();
+          await createCollector();
         }
       } catch (e) {
         // timeout, usually

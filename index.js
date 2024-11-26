@@ -14,10 +14,10 @@ const client = new Client({
 
 const fs = require("fs");
 const path = require("node:path");
-const debounce = require('debounce-promise');
+const debounce = require("debounce-promise");
 const botPackage = require("./package.json");
 
-require('dotenv').config();
+require("dotenv").config();
 
 // const checkMessageType = require("./resources/dailymessagestats/checkMessageType.js");
 // const priceTracker = require("./resources/pricetracker.js");
@@ -26,10 +26,15 @@ require('dotenv').config();
 // var emojis = [];
 
 client.once("ready", async () => {
-  const date = new Intl.DateTimeFormat('en-US', { month:"2-digit", day:"2-digit", year:"numeric", hour: "2-digit", minute: "2-digit", timeZoneName: "short" }).format(new Date(Date.now()));
-  console.log(
-    `${date} => ${client.user.tag} ${botPackage.version} is a go`
-  );
+  const date = new Intl.DateTimeFormat("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZoneName: "short",
+  }).format(new Date(Date.now()));
+  console.log(`${date} => ${client.user.tag} ${botPackage.version} is a go`);
   client.user.setActivity("/help");
   // const guild = await client.guilds.fetch("288143162394804224");
   // const guildMembers = await guild.members.fetch();
@@ -76,7 +81,7 @@ client.commands = new Collection();
 
 // reads folders in /commands, for each js file, set as command
 
-const foldersPath = path.join(__dirname, 'commands');
+const foldersPath = path.join(__dirname, "commands");
 const commandFolders = fs.readdirSync(foldersPath);
 
 for (const folder of commandFolders) {
@@ -99,10 +104,7 @@ for (const folder of commandFolders) {
 }
 
 client.on(Events.InteractionCreate, async (interaction) => {
-  if (
-    interaction.isMessageComponent() ||
-    interaction.isButton()
-  ) return;
+  if (interaction.isMessageComponent() || interaction.isButton()) return;
 
   const command = interaction.client.commands.get(interaction.commandName);
 
@@ -123,7 +125,8 @@ client.on(Events.InteractionCreate, async (interaction) => {
       });
     }
   } else {
-    if (command.execute.toString().includes("editReply")) await interaction.deferReply();
+    if (command.execute.toString().includes("editReply"))
+      await interaction.deferReply();
     try {
       await command.execute(interaction);
     } catch (error) {

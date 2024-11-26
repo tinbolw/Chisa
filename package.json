@@ -1,5 +1,5 @@
 {
-  "name": "Chisa",
+  "name": "chisa",
   "version": "2.6.8",
   "description": "a discord bot",
   "main": "index.js",
@@ -11,7 +11,8 @@
   "dependencies": {
     "@discordjs/opus": "^0.9.0",
     "@discordjs/voice": "^0.16.1",
-    "axios": "^1.7.7",
+    "@google/generative-ai": "^0.21.0",
+    "axios": "^1.7.8",
     "base64image-to-file": "^1.2.0",
     "bufferutil": "^4.0.8",
     "debounce-promise": "^3.1.2",
@@ -22,11 +23,11 @@
     "graphql": "^16.9.0",
     "graphql-request": "^5.2.0",
     "striptags": "^3.2.0",
-    "utf-8-validate": "^6.0.4",
+    "utf-8-validate": "^6.0.5",
     "ytdl-core": "^4.11.5",
     "zlib-sync": "^0.1.9"
   },
   "devDependencies": {
-    "@types/node": "^22.7.7"
+    "@types/node": "^22.10.0"
   }
 }
