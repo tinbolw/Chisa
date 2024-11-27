@@ -30,9 +30,9 @@ module.exports = {
     const fetchData = await fetchMedia(mediaType, mediaTitle, nsfw);
     const data = fetchData.data;
     // initialize embed and collector
-    const response = await interaction.editReply({ embeds: [generateMediaEmbed(data, expanded, fetchData.timeElapsed, mediaType)], components: data.status == 404 ? null : [generateButtonRow(expanded)] });
-    if (data.status != 404) await createCollector();
-
+    const response = await interaction.editReply({ embeds: [generateMediaEmbed(data, expanded, fetchData.timeElapsed, mediaType)], components: data.status === 404 ? null : [generateButtonRow(expanded)] });
+    if (data.status !== 404) await createCollector();
+// todo move to lib
     async function createCollector() {
       const collectorFilter = i => i.user.id === interaction.user.id;
       try {
@@ -42,9 +42,12 @@ module.exports = {
           await confirmation.update({ embeds: [generateMediaEmbed(data, expanded, fetchData.timeElapsed, mediaType)], components: [generateButtonRow(expanded)] });
           await createCollector();
         }
-      } catch (e) {
-        // timeout, usually
-        await interaction.editReply({ components: [] });
+      } catch (err) {
+        if (err.message === "Collector received no interactions before ending with reason: time") { // collector timeout
+          await interaction.editReply({ components: [] });
+        } else {
+          console.error(err);
+        }
       }
     }
   },

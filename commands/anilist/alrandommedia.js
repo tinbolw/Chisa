@@ -18,7 +18,7 @@ module.exports = {
         .setDescription('Whether or not to include NSFW content.'),
     ),
   async execute(interaction) {
-    var expanded = false;
+    let expanded = false;
     const mediaType = interaction.options.getString('type');
     const nsfw = interaction.options.getBoolean('nsfw') ?? false;
     const fetchData = await randomMedia(mediaType, nsfw);
@@ -29,15 +29,18 @@ module.exports = {
     async function createCollector() {
       const collectorFilter = i => i.user.id === interaction.user.id;
       try {
-        const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 30_000 });
+        const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 1_000 });
         if (confirmation.customId === 'changeEmbedState') {
           expanded = !expanded;
           await confirmation.update({ embeds: [generateMediaEmbed(data, expanded, fetchData.timeElapsed, mediaType)], components: [generateButtonRow(expanded)] });
           await createCollector();
         }
-      } catch (e) {
-        // timeout, usually
-        await interaction.editReply({ components: [] });
+      } catch (err) {
+        if (err.message === "Collector received no interactions before ending with reason: time") { // collector timeout
+          await interaction.editReply({ components: [] });
+        } else {
+          console.error(err);
+        }
       }
     }
   },

@@ -150,3 +150,6 @@ stickers.json
 
 # jetbrains
 .idea
+
+# eslint
+eslint.config.mjs

@@ -62,7 +62,7 @@ module.exports = {
         .setLabel('>')
         .setStyle(ButtonStyle.Primary)
         .setDisabled(page == maxPage);
-      return row = new ActionRowBuilder()
+      return new ActionRowBuilder()
         .addComponents(previous, next);
     }
 

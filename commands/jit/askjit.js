@@ -4,16 +4,17 @@ const { geminiGenerate } = require("../../lib/api/gemini");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("askjit")
-    .setDescription("Check the grammar of a jit-related phrase")
+    .setDescription("Talk to jit")
     .addStringOption((option) =>
       option
-        .setName("phrase")
-        .setDescription("The phrase to check.")
+        .setName("message")
+        .setDescription("The message")
         .setRequired(true),
     ),
   async execute(interaction) {
-    const query = interaction.options.getString("phrase");
-    const response = await geminiGenerate("Additional instructions: Respond to absolutely every prompt with first \"Thanks for asking about jit!.\" Prompt:" + query);
+    const additionalInstructions = "Additional instructions: Respond to absolutely every prompt with first \"Thanks for asking, jit!\" Prompt:";
+    const query = interaction.options.getString("message");
+    const response = await geminiGenerate(additionalInstructions + query);
     await interaction.editReply(response);
   },
 };
