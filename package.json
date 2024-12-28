@@ -4,7 +4,8 @@
   "description": "a discord bot",
   "main": "index.js",
   "scripts": {
-    "dev": "node ./management/refreshcommands.js && node index.js"
+    "dev": "node ./management/refreshcommands.js && node index.js",
+    "start": "node ./lib/slashcommands/refreshcommands.js && node index.js"
   },
   "author": "tinbolw",
   "license": "ISC",
@@ -12,15 +13,15 @@
     "@discordjs/opus": "^0.9.0",
     "@discordjs/voice": "^0.16.1",
     "@google/generative-ai": "^0.21.0",
-    "axios": "^1.7.8",
+    "axios": "^1.7.9",
     "base64image-to-file": "^1.2.0",
-    "bufferutil": "^4.0.8",
+    "bufferutil": "^4.0.9",
     "debounce-promise": "^3.1.2",
     "discord.js": "^14.16.3",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "erlpack": "github:discord/erlpack",
     "fs": "0.0.1-security",
-    "graphql": "^16.9.0",
+    "graphql": "^16.10.0",
     "graphql-request": "^5.2.0",
     "striptags": "^3.2.0",
     "utf-8-validate": "^6.0.5",
@@ -28,9 +29,9 @@
     "zlib-sync": "^0.1.9"
   },
   "devDependencies": {
-    "@eslint/js": "^9.15.0",
-    "@types/node": "^22.10.0",
-    "eslint": "^9.15.0",
-    "globals": "^15.12.0"
+    "@eslint/js": "^9.17.0",
+    "@types/node": "^22.10.2",
+    "eslint": "^9.17.0",
+    "globals": "^15.14.0"
   }
 }

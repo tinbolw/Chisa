@@ -1,7 +1,8 @@
 const { SlashCommandBuilder } = require('discord.js');
-const slashcommands = require('../../lib/getslashcommands');
+const slashcommands = require('../../lib/slashcommands/getslashcommands');
 const fs = require('fs');
 
+// todo this command should not be pushed to the global commands.
 //* this command works assuming:
 //* all commands are in subdirectories of the /commands folder
 //* all commands are named the same as their filename 
@@ -55,7 +56,7 @@ module.exports = {
           await interaction.editReply(`Command \`${newCommand.data.name}\` was reloaded!`);
         } catch (error) {
           console.error(error);
-          await interaction.editReply(`There was an error while reloading the command \`${command.data.name}\`:\n\`\`\`${error.toString().substring(0, 513)}\`\`\``);
+          await interaction.editReply(`There was an error while reloading the command \`${command.data.name}\`!`);
         }
       }
     }

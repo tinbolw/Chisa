@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonStyle, ButtonBuilder } = require('discord.js');
 const path = require('node:path');
 const package = require(path.join(__dirname, '../../package.json'));
-const getSlashCommands = require(path.join(__dirname, '../../lib/getslashcommands.js'));
+const getSlashCommands = require(path.join(__dirname, '../../lib/slashcommands/getslashcommands.js'));
 
 //* current command has a listing for guild commands, which is primarily useful for development
 //* if plans to expand, make it show global for all else instead
