@@ -153,3 +153,6 @@ stickers.json
 
 # eslint
 eslint.config.mjs
+
+# collectemojis and stickercollect folder
+backup/
