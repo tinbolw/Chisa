@@ -1,0 +1,7 @@
+# Template dotenv file containing required variables
+
+TOKEN=
+
+# Command refresh
+CLIENT_ID=
+GUILD_ID=
