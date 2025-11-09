@@ -25,7 +25,7 @@ require("dotenv").config();
 
 // var emojis = [];
 
-client.once("ready", async () => {
+client.once("clientReady", async () => {
   const date = new Intl.DateTimeFormat("en-US", {
     month: "2-digit",
     day: "2-digit",
